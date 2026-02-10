@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PaperBanana - Academic Figure Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #2d3436;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 8px;
+        }
+
+        .header h1 span {
+            color: #f9ca24;
+        }
+
+        .header p {
+            color: #636e72;
+            font-size: 1.05rem;
+        }
+
+        /* Form */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            margin-bottom: 32px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #2d3436;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: #636e72;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 160px;
+            padding: 14px;
+            border: 1.5px solid #dfe6e9;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.2s;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #f9ca24;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #dfe6e9;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #f9ca24;
+        }
+
+        .field-group {
+            margin-bottom: 24px;
+        }
+
+        .row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .row .field-group {
+            flex: 1;
+        }
+
+        /* Type selector */
+        .type-selector {
+            display: flex;
+            gap: 12px;
+        }
+
+        .type-option {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1.5px solid #dfe6e9;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            font-size: 0.95rem;
+        }
+
+        .type-option:hover {
+            border-color: #f9ca24;
+        }
+
+        .type-option.active {
+            border-color: #f9ca24;
+            background: #fffbeb;
+        }
+
+        /* Button */
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: #f9ca24;
+            color: #2d3436;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .generate-btn:hover {
+            background: #f0b90b;
+            transform: translateY(-1px);
+        }
+
+        .generate-btn:disabled {
+            background: #dfe6e9;
+            color: #b2bec3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .loading.visible {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #dfe6e9;
+            border-top: 3px solid #f9ca24;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #636e72;
+            font-size: 0.95rem;
+        }
+
+        /* Result */
+        .result-card {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .result-card.visible {
+            display: block;
+        }
+
+        .result-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .preview-image {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #dfe6e9;
+            margin-bottom: 20px;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .download-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .download-btn.png {
+            background: #2d3436;
+            color: white;
+        }
+
+        .download-btn.png:hover {
+            background: #1a1e1f;
+        }
+
+        .download-btn.svg {
+            background: white;
+            color: #2d3436;
+            border: 1.5px solid #2d3436;
+        }
+
+        .download-btn.svg:hover {
+            background: #f8f9fa;
+        }
+
+        /* Error */
+        .error-message {
+            display: none;
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            color: #c53030;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Paper<span>Banana</span></h1>
+            <p>Generate publication-ready academic figures from text descriptions</p>
+        </div>
+
+        <div class="form-card">
+            <div class="field-group">
+                <label>Figure Description</label>
+                <p class="helper-text">Describe your methodology, architecture, or data in detail. The more specific you are, the better the result.</p>
+                <textarea id="description" placeholder="e.g., Our model uses a transformer-based encoder-decoder architecture. The encoder processes input tokens through 6 self-attention layers. The decoder uses cross-attention to attend to encoder outputs and generates output tokens autoregressively..."></textarea>
+            </div>
+
+            <div class="row">
+                <div class="field-group">
+                    <label>Caption</label>
+                    <input type="text" id="caption" placeholder="e.g., Overview of our proposed architecture">
+                </div>
+                <div class="field-group">
+                    <label>Figure Type</label>
+                    <div class="type-selector">
+                        <div class="type-option active" data-type="diagram" onclick="selectType(this)">Diagram</div>
+                        <div class="type-option" data-type="plot" onclick="selectType(this)">Plot</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-message" id="error"></div>
+
+            <button class="generate-btn" id="generateBtn" onclick="generate()">
+                Generate Figure
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating your figure... this usually takes 1-3 minutes.</p>
+        </div>
+
+        <div class="result-card" id="result">
+            <h2>Your Figure</h2>
+            <img class="preview-image" id="preview" src="" alt="Generated figure">
+            <div class="download-buttons">
+                <a class="download-btn png" id="downloadPng" href="#" download>Download PNG</a>
+                <a class="download-btn svg" id="downloadSvg" href="#" download>Download SVG</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = 'diagram';
+
+        function selectType(el) {
+            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            selectedType = el.dataset.type;
+        }
+
+        function showError(message) {
+            const el = document.getElementById('error');
+            el.textContent = message;
+            el.classList.add('visible');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.remove('visible');
+        }
+
+        async function generate() {
+            const description = document.getElementById('description').value.trim();
+            const caption = document.getElementById('caption').value.trim() || 'Generated figure';
+
+            hideError();
+
+            if (!description) {
+                showError('Please enter a figure description.');
+                return;
+            }
+
+            if (description.length < 20) {
+                showError('Please provide a more detailed description (at least a sentence or two).');
+                return;
+            }
+
+            // Show loading, hide result
+            const btn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            loading.classList.add('visible');
+            result.classList.remove('visible');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        description: description,
+                        caption: caption,
+                        figure_type: selectedType,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Something went wrong');
+                }
+
+                // Show result
+                document.getElementById('preview').src = data.png_url;
+                document.getElementById('downloadPng').href = `/api/download/${data.job_id}/png`;
+                document.getElementById('downloadSvg').href = `/api/download/${data.job_id}/svg`;
+                result.classList.add('visible');
+
+            } catch (err) {
+                showError(err.message || 'Failed to generate figure. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Generate Figure';
+                loading.classList.remove('visible');
+            }
+        }
+
+        // Allow Ctrl+Enter to submit
+        document.getElementById('description').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                generate();
+            }
+        });
+    </script>
+</body>
+</html>
