@@ -104,7 +104,7 @@ async def generate_figure(request: GenerateRequest):
             cmd = ["paperbanana", "plot", "--input", str(input_file.resolve()), "--caption", request.caption]
         else:
             cmd = ["paperbanana", "generate", "--input", str(input_file.resolve()), "--caption", request.caption]
-        process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=env)
+        process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=str(job_dir) env=env)
         stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
         stdout_text = stdout.decode("utf-8", errors="replace")
         stderr_text = stderr.decode("utf-8", errors="replace")
