@@ -109,7 +109,7 @@ async def generate_figure(request: GenerateRequest):
         stdout_text = stdout.decode("utf-8", errors="replace")
         stderr_text = stderr.decode("utf-8", errors="replace")
         if process.returncode != 0:
-            combined = f"STDOUT: {stdout_text[:300]} | STDERR: {stderr_text[:300]} | EXIT CODE: {process.returncode}"
+            combined = f"STDOUT: {stdout_text[:2000]} | STDERR: {stderr_text[:2000]} | EXIT CODE: {process.returncode}"
             raise HTTPException(status_code=500, detail=f"PaperBanana failed: {combined}")
         png_file = None
         for p in job_dir.rglob("final_output.png"):
@@ -121,7 +121,7 @@ async def generate_figure(request: GenerateRequest):
                 break
         if png_file is None:
             files_found = list(job_dir.rglob("*"))
-            raise HTTPException(status_code=500, detail=f"No image generated. Files in output: {[str(f.name) for f in files_found[:20]]} | STDOUT: {stdout_text[:200]}")
+            raise HTTPException(status_code=500, detail=f"No image generated. Files in output: {[str(f.name) for f in files_found[:20]]} | STDOUT: {stdout_text[:2000]}")
         final_png = job_dir / "figure.png"
         shutil.copy2(png_file, final_png)
         final_svg = job_dir / "figure.svg"
